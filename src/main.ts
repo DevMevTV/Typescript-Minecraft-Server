@@ -1,0 +1,156 @@
+import { createServer, Socket } from "net";
+import { log, error } from "./logApi"
+
+
+const handlePacket = (packet: Buffer, socket: Socket) => {
+  const packetId = packet[0];
+  log(`Received packet with ID: 0x${packetId.toString(16)}`, "SERVER");
+
+  if (packetId === 0xFE) {
+    log("Legacy ping detected", "SERVER");
+    handleLegacyPing(socket);
+  } else if (packetId === 0x10) {
+    log("Modern status request detected", "SERVER");
+    handleStatusRequest(socket);
+  } else if (packetId === 0x01) {
+    log("Ping request detected", "SERVER");
+    handlePingRequest(packet, socket);
+  } else {
+    log(`Unexpected packet ID: 0x${packetId.toString(16)}`, "SERVER");
+    // Further debug information if needed
+    log("Received data: " + packet, "SERVER");
+  }
+};
+
+const handleStatusRequest = (socket: Socket) => {
+  const statusResponse = {
+    version: {
+      name: "1.21.3",
+      protocol: 768,
+    },
+    players: {
+      max: 100,
+      online: 10,
+      sample: [
+        { name: "Steve", id: "8667ba71-b85a-4004-af54-457a9734eed7" },
+        { name: "Alex", id: "7a3f575e-c85f-4ff2-92da-dc18a78cb7465" },
+      ],
+    },
+    description: {
+      text: "§4JAVASCRIP SERVER BE BRRRRRR",
+    },
+    enforcesSecureChat: false,
+  };
+
+  const jsonString = JSON.stringify(statusResponse);
+  const jsonBuffer = Buffer.from(jsonString, "utf-8");
+
+  log("JSON buffer length: "+ jsonBuffer.length, "SERVER");
+
+  const lengthBuffer = encodeVarInt(jsonBuffer.length);
+
+  log("Length buffer: " + lengthBuffer, "SERVER");
+  log("JSON buffer: " + jsonBuffer, "SERVER");
+
+  const response = Buffer.concat([
+    Buffer.from([0x00]),
+    lengthBuffer,
+    jsonBuffer,
+  ]);
+
+  log("Raw response buffer: " + response, "SERVER");
+
+  socket.write(response, (err) => {
+    if (err) {
+      error("Failed to send status response: " + err, "SERVER");
+    } else {
+      log("Modern status response sent!", "SERVER");
+    }
+  });
+};
+
+const handleLegacyPing = (socket: Socket) => {
+  const protocolVersion = 768;
+  const serverVersion = "1.21.3";
+  const motd = "§4JAVASCRIPT SERVER BE BRRRRRR";
+  const currentPlayers = 10;
+  const maxPlayers = 100;
+
+  const responseString = `§1\0${protocolVersion}\0${serverVersion}\0${motd}\0${currentPlayers}\0${maxPlayers}`;
+
+  const utf16Response: number[] = [];
+  for (const char of responseString) {
+    const codeUnit = char.charCodeAt(0);
+    utf16Response.push((codeUnit >> 8) & 0xff, codeUnit & 0xff);
+  }
+
+  const length = utf16Response.length / 2;
+  const response = Buffer.concat([
+    Buffer.from([0xff]),
+    Buffer.from([(length >> 8) & 0xff, length & 0xff]),
+    Buffer.from(utf16Response),
+  ]);
+
+  socket.write(response, (err) => {
+    if (err) {
+      error("Failed to send legacy ping response: " + err, "SERVER");
+    } else {
+      log("Final packet buffer: " + response, "SERVER");
+      log("Legacy ping response sent!", "SERVER");
+    }
+  });
+};
+
+const handlePingRequest = (packet: Buffer, socket: Socket) => {
+  log("Handling ping request...", "SERVER");
+  const payload = packet.slice(1);
+  const response = Buffer.concat([Buffer.from([0x01]), payload]);
+
+  log("Pong response constructed, sending...", "SERVER");
+  socket.write(response, (err) => {
+    if (err) {
+      error("Failed to send pong response: " + err, "SERVER");
+    } else {
+      log("Pong response sent!", "SERVER");
+    }
+  });
+};
+
+const encodeVarInt = (value: number): Buffer => {
+  let buffer: number[] = [];
+  do {
+    let temp = value & 0x7F;   // Mask the lower 7 bits
+    value >>>= 7;              // Unsigned right shift by 7 bits
+
+    // If there are more bits left, we set the continuation bit
+    if (value !== 0) {
+      temp |= 0x80;             // Set the continuation bit (0x80)
+    }
+
+    buffer.push(temp);         // Push the byte to the buffer
+  } while (value !== 0);        // Loop while there are more bits to encode
+
+  return Buffer.from(buffer);   // Return a Buffer from the encoded bytes
+};
+
+
+const server = createServer((socket: Socket) => {
+  log("Socket detected", "SERVER");
+
+  socket.on("data", (clientData: Buffer) => {
+    handlePacket(clientData, socket);
+  });
+
+  socket.on("end", () => {
+    log("Client disconnected", "SERVER");
+  });
+
+  socket.on("error", (err) => {
+    error("Socket error: " + err, "SERVER");
+  });
+});
+
+log("Starting server...", "SERVER")
+server.listen(25565, "0.0.0.0", () => {
+  log("Server running on port 25565", "SERVER")
+});
