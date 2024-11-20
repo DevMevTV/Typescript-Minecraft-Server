@@ -1,18 +1,23 @@
 import { createServer, Socket } from "net";
 import { log, error } from "./logApi"
 
+enum PacketIDs {
+  LegacyPing = 0xFE,
+  StatusRequest = 0x10,
+  PingRequest = 0x01
+}
 
 const handlePacket = (packet: Buffer, socket: Socket) => {
   const packetId = packet[0];
   log(`Received packet with ID: 0x${packetId.toString(16)}`, "SERVER");
 
-  if (packetId === 0xFE) {
+  if (packetId === PacketIDs.LegacyPing) {
     log("Legacy ping detected", "SERVER");
     handleLegacyPing(socket);
-  } else if (packetId === 0x10) {
+  } else if (packetId === PacketIDs.StatusRequest) {
     log("Modern status request detected", "SERVER");
     handleStatusRequest(socket);
-  } else if (packetId === 0x01) {
+  } else if (packetId === PacketIDs.PingRequest) {
     log("Ping request detected", "SERVER");
     handlePingRequest(packet, socket);
   } else {
