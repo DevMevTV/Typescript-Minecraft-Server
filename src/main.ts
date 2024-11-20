@@ -1,18 +1,31 @@
 import { createServer, Socket } from "net";
 import { log, error } from "./logApi"
+import { config } from "dotenv";
 
+config();
+const PORT: number = parseInt(process.env.PORT);
+const VERSION: string = process.env.VERSION;
+const PROTOCOL_VERSION: number = parseInt(process.env.PROTOCOL_VERSION);
+const MOTD: string = process.env.MOTD;
+const MAX_PLAYERS: number = parseInt(process.env.MAX_PLAYERS);
+
+enum PacketIDs {
+  LegacyPing = 0xFE,
+  StatusRequest = 0x10,
+  PingRequest = 0x01
+}
 
 const handlePacket = (packet: Buffer, socket: Socket) => {
   const packetId = packet[0];
   log(`Received packet with ID: 0x${packetId.toString(16)}`, "SERVER");
 
-  if (packetId === 0xFE) {
+  if (packetId === PacketIDs.LegacyPing) {
     log("Legacy ping detected", "SERVER");
     handleLegacyPing(socket);
-  } else if (packetId === 0x10) {
+  } else if (packetId === PacketIDs.StatusRequest) {
     log("Modern status request detected", "SERVER");
     handleStatusRequest(socket);
-  } else if (packetId === 0x01) {
+  } else if (packetId === PacketIDs.PingRequest) {
     log("Ping request detected", "SERVER");
     handlePingRequest(packet, socket);
   } else {
@@ -25,11 +38,11 @@ const handlePacket = (packet: Buffer, socket: Socket) => {
 const handleStatusRequest = (socket: Socket) => {
   const statusResponse = {
     version: {
-      name: "1.21.3",
-      protocol: 768,
+      name: VERSION,
+      protocol: PROTOCOL_VERSION,
     },
     players: {
-      max: 100,
+      max: MAX_PLAYERS,
       online: 10,
       sample: [
         { name: "Steve", id: "8667ba71-b85a-4004-af54-457a9734eed7" },
@@ -37,7 +50,7 @@ const handleStatusRequest = (socket: Socket) => {
       ],
     },
     description: {
-      text: "§4JAVASCRIP SERVER BE BRRRRRR",
+      text: MOTD,
     },
     enforcesSecureChat: false,
   };
@@ -70,11 +83,11 @@ const handleStatusRequest = (socket: Socket) => {
 };
 
 const handleLegacyPing = (socket: Socket) => {
-  const protocolVersion = 768;
-  const serverVersion = "1.21.3";
-  const motd = "§4JAVASCRIPT SERVER BE BRRRRRR";
+  const protocolVersion = PROTOCOL_VERSION;
+  const serverVersion = VERSION;
+  const motd = MOTD;
   const currentPlayers = 10;
-  const maxPlayers = 100;
+  const maxPlayers = MAX_PLAYERS;
 
   const responseString = `§1\0${protocolVersion}\0${serverVersion}\0${motd}\0${currentPlayers}\0${maxPlayers}`;
 
@@ -151,6 +164,6 @@ const server = createServer((socket: Socket) => {
 });
 
 log("Starting server...", "SERVER")
-server.listen(25565, "0.0.0.0", () => {
+server.listen(PORT, "0.0.0.0", () => {
   log("Server running on port 25565", "SERVER")
 });
