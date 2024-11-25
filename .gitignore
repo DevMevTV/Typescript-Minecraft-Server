@@ -1,3 +1,12 @@
+<<<<<<< HEAD
 logs
 node_modules
 log *
+=======
+node_modules
+>>>>>>> 88d29f169bc9b2f133280072827eb443e5655d02
+logs
+node_modules
+log *
+=======
+node_modules
