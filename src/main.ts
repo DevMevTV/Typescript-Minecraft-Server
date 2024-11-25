@@ -43,7 +43,7 @@ const handleStatusRequest = (socket: Socket) => {
     },
     players: {
       max: MAX_PLAYERS,
-      online: 10,
+      online: 2,
       sample: [
         { name: "Steve", id: "8667ba71-b85a-4004-af54-457a9734eed7" },
         { name: "Alex", id: "7a3f575e-c85f-4ff2-92da-dc18a78cb7465" },
@@ -58,24 +58,16 @@ const handleStatusRequest = (socket: Socket) => {
   const jsonString = JSON.stringify(statusResponse);
   const jsonBuffer = Buffer.from(jsonString, "utf-8");
 
-  log("JSON buffer length: "+ jsonBuffer.length, "SERVER");
+  const packetIdBuffer = Buffer.from([0x00]); // Packet ID (0x00)
+  const jsonLengthBuffer = encodeVarInt(jsonBuffer.length); // Length of JSON response
+  const fullDataBuffer = Buffer.concat([packetIdBuffer, jsonLengthBuffer, jsonBuffer]);
 
-  const lengthBuffer = encodeVarInt(jsonBuffer.length);
+  const lengthBuffer = encodeVarInt(fullDataBuffer.length); // Total packet length
+  const responseBuffer = Buffer.concat([lengthBuffer, fullDataBuffer]);
 
-  log("Length buffer: " + lengthBuffer, "SERVER");
-  log("JSON buffer: " + jsonBuffer, "SERVER");
-
-  const response = Buffer.concat([
-    Buffer.from([0x00]),
-    lengthBuffer,
-    jsonBuffer,
-  ]);
-
-  log("Raw response buffer: " + response, "SERVER");
-
-  socket.write(response, (err) => {
+  socket.write(responseBuffer, (err) => {
     if (err) {
-      error("Failed to send status response: " + err, "SERVER");
+      error(`Failed to send status response: ${err}`, "SERVER");
     } else {
       log("Modern status response sent!", "SERVER");
     }
@@ -130,22 +122,17 @@ const handlePingRequest = (packet: Buffer, socket: Socket) => {
 };
 
 const encodeVarInt = (value: number): Buffer => {
-  let buffer: number[] = [];
-  do {
-    let temp = value & 0x7F;   // Mask the lower 7 bits
-    value >>>= 7;              // Unsigned right shift by 7 bits
-
-    // If there are more bits left, we set the continuation bit
-    if (value !== 0) {
-      temp |= 0x80;             // Set the continuation bit (0x80)
-    }
-
-    buffer.push(temp);         // Push the byte to the buffer
-  } while (value !== 0);        // Loop while there are more bits to encode
-
-  return Buffer.from(buffer);   // Return a Buffer from the encoded bytes
+  const buffer: number[] = [];
+  let more = true;
+  while (more) {
+    let temp = value & 0x7F;
+    value >>>= 7;
+    if (value !== 0) temp |= 0x80;
+    buffer.push(temp);
+    more = value !== 0;
+  }
+  return Buffer.from(buffer);
 };
-
 
 const server = createServer((socket: Socket) => {
   log("Socket detected", "SERVER");
