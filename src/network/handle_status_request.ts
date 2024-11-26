@@ -1,6 +1,6 @@
 import { Socket } from "net";
 import { encodeVarInt } from "./VarInt";
-import { log, error } from "../logApi";
+import { error } from "../logApi";
 import { VERSION, PROTOCOL_VERSION, MAX_PLAYERS, MOTD } from "../config";
 
 export const handleStatusRequest = (socket: Socket) => {
@@ -26,18 +26,16 @@ export const handleStatusRequest = (socket: Socket) => {
     const jsonString = JSON.stringify(statusResponse);
     const jsonBuffer = Buffer.from(jsonString, "utf-8");
   
-    const packetIdBuffer = Buffer.from([0x00]); // Packet ID (0x00)
-    const jsonLengthBuffer = encodeVarInt(jsonBuffer.length); // Length of JSON response
+    const packetIdBuffer = Buffer.from([0x00]);
+    const jsonLengthBuffer = encodeVarInt(jsonBuffer.length);
     const fullDataBuffer = Buffer.concat([packetIdBuffer, jsonLengthBuffer, jsonBuffer]);
   
-    const lengthBuffer = encodeVarInt(fullDataBuffer.length); // Total packet length
+    const lengthBuffer = encodeVarInt(fullDataBuffer.length);
     const responseBuffer = Buffer.concat([lengthBuffer, fullDataBuffer]);
   
     socket.write(responseBuffer, (err) => {
       if (err) {
         error(`Failed to send status response: ${err}`, "SERVER");
-      } else {
-        log("Modern status response sent!", "SERVER");
       }
     });
   };

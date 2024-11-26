@@ -4,14 +4,13 @@ import { handlePacket } from "./network/handle_packet";
 import { PORT } from "./config";
 
 const server = createServer((socket: Socket) => {
-  log("Socket detected", "SERVER");
 
   socket.on("data", (clientData: Buffer) => {
     handlePacket(clientData, socket);
   });
 
   socket.on("end", () => {
-    log("Client disconnected", "SERVER");
+    
   });
 
   socket.on("error", (err) => {

@@ -14,7 +14,7 @@ export const encodeVarInt = (value: number): Buffer => {
 export const decodeVarInt = (buffer: Buffer): { value: number; size: number } => {
     let value = 0;
     let position = 0;
-    let byte;
+    let byte: number;
   
     do {
       if (position >= buffer.length) {

@@ -1,5 +1,5 @@
 import { Socket } from "net";
-import { log, error } from "../logApi";
+import { error } from "../logApi";
 import { VERSION, PROTOCOL_VERSION, MAX_PLAYERS, MOTD } from "../config";
 
 export const handleLegacyPing = (socket: Socket) => {
@@ -27,9 +27,6 @@ export const handleLegacyPing = (socket: Socket) => {
     socket.write(response, (err) => {
       if (err) {
         error("Failed to send legacy ping response: " + err, "SERVER");
-      } else {
-        log("Final packet buffer: " + response, "SERVER");
-        log("Legacy ping response sent!", "SERVER");
       }
     });
   };
