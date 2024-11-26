@@ -31,8 +31,8 @@ export function error(
   fatal?: boolean
 ) {
   writeFileSync(
-    extraInformation,
-    `${readFileSync("./log")}[ERROR]: {${extraInformation}} - ${value}\n`
+    logFileName,
+    `${readFileSync(logFileName)}[ERROR]: {${extraInformation}} - ${value}\n`
   );
   if (!fatal) console.error(`[ERROR]: {${extraInformation}} - ${value}`);
   else throw new Error(`[ERROR]: {${extraInformation}} - ${value}`);
