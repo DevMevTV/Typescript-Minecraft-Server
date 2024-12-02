@@ -1,28 +1,17 @@
-import { writeFileSync, readFileSync, readdirSync, rename, mkdir } from "fs";
+import { writeFileSync, readFileSync, readdirSync, rename, mkdir } from "fs"
 
-let logFileName: string = getLogFile();
+const date = new Date()
+let logFileName: string = `./logs/log_${date.getUTCFullYear()}_${date.getUTCMonth() + 1}_${date.getUTCDate()}`
+try {readFileSync(logFileName)}
+catch {writeFileSync(logFileName, '')}  
 
-function getLogFile (): string {
-  const filesInRoot: Array<string> = readdirSync("./")
-  let oldLogFileName: string
-  for (const file of filesInRoot) {
-    if (file.slice(0, 4) == "log ") oldLogFileName = file;
-  }
-  const logIndex: number = oldLogFileName !== undefined ? parseInt(oldLogFileName.match(/\d+/)[0], 10) : 0
-  mkdir("./logs", () => {})
-  rename(`./${oldLogFileName}`, `./logs/${oldLogFileName}`, () => {})
-  writeFileSync(`./log ${logIndex + 1}`, '')
-  return `log ${+logIndex + 1}`
-}
+export function log(value: string, extraInformation: string, color?: string) {
 
-
-export function log(value: string, extraInformation: string) {
-
-  console.log(`[Info] {${extraInformation}} - ${value}`);
+  console.log(color == undefined ? `\x1b[32m[Info] {${extraInformation}} - \x1b[37m${value}` : `\x1b[32m[Info] {${extraInformation}} - ${color}${value}`)
   writeFileSync(
     logFileName,
     `${readFileSync(logFileName)}[Info] {${extraInformation}} - ${value}\n`
-  );
+  )
 }
 
 export function error(
@@ -33,7 +22,7 @@ export function error(
   writeFileSync(
     logFileName,
     `${readFileSync(logFileName)}[ERROR]: {${extraInformation}} - ${value}\n`
-  );
-  if (!fatal) console.error(`[ERROR]: {${extraInformation}} - ${value}`);
-  else throw new Error(`[ERROR]: {${extraInformation}} - ${value}`);
+  )
+  if (!fatal) console.error(`\x1b[31m[ERROR]: {${extraInformation}} - \x1b[37m${value}`)
+  else throw new Error(`[ERROR]: {${extraInformation}} - ${value}`)
 }
