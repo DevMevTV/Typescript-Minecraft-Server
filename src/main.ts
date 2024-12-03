@@ -16,16 +16,17 @@ const server = createServer((socket: Socket) => {
     socketId = nextSocketId++
   }
 
-  global.sockets[socketId] = { NextState: ConnectionState.Handshake }
+  global.sockets[socketId] = { NextState: ConnectionState.Handshake}
 
   socket.on("data", (clientData: Buffer) => {
-    handlePacket(clientData, socket, socketId)
+    global.currentSocketId = socketId
+    handlePacket(clientData, socket)
   })
 
   socket.on("end", () => {
     delete global.sockets[socketId]
     reusableIds.push(socketId)
-    log("connection closed", "SERVER")
+    //log("connection closed", "SERVER")
   })
 
   socket.on("error", (err) => {
