@@ -10,10 +10,10 @@ export const handleLoginStart = (packet: Buffer, socket: Socket) => {
     offset += usernameLengthSize
     offset += 1
 
-    const username = packet.slice(offset, offset + usernameLength).toString("utf-8")
+    const username = packet.subarray(offset, offset + usernameLength).toString("utf-8")
     offset += usernameLength
-    const uuid = packet.slice(offset, offset + 16).toString("hex")  
-    log(`${username} joined the game with ${uuid} `, "SERVER")
+    const uuid = packet.subarray(offset, offset + 16).toString("hex")  
+    log(`${username} joined the game with UUID ${uuid} `, "SERVER")
 
     sendLoginFinished(socket)
   

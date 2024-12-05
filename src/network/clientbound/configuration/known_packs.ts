@@ -1,28 +1,28 @@
-import { encodeString } from "../../netString";
-import { encodeVarInt } from "../../VarInt";
-import { finishConfiguration } from "./finish_configuration";
+import { Socket } from "net"
+import { encodePacket } from "../../packet"
+import { encodeVarInt } from "../../VarInt"
+import { encodeString } from "../../netString"
 
-export const knownPacks = (socket) => {
-    const pack = {
-        namespace: "minecraft",
-        id: "core",
-        version: "1.21"
-    };
+export const knownPacks = (socket: Socket) => {
+    const packs = [
+        {
+            namespace: "minecraft",
+            id: "core",
+            version: "1.21"
+        }
+    ]
 
-    const packetId = encodeVarInt(0x0E);
+    let data = encodeVarInt(packs.length)
 
-    const packsCount = encodeVarInt(1);
+    packs.forEach((pack) => {
+        data = Buffer.concat([
+            data,
+            encodeString(pack.namespace),
+            encodeString(pack.id),
+            encodeString(pack.version),
+        ])
+    });
 
-    const namespace = encodeString(pack.namespace);
-    const id = encodeString(pack.id);
-    const version = encodeString(pack.version);
-    const packsData = Buffer.concat([namespace, id, version]);
-
-    const packetData = Buffer.concat([packsCount, packsData]);
-
-    const packetLength = encodeVarInt(packetId.length + packetData.length);
-
-    const result = Buffer.concat([packetLength, packetId, packetData]);
-
-    socket.write(result);
-};
+    const packet = encodePacket(0x0E, [data], true)
+    socket.write(packet)
+}

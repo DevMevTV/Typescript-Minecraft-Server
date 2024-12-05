@@ -1,30 +1,28 @@
-import { Socket } from "net";
-import { encodeVarInt } from "../../VarInt";
-import { error } from "../../../logApi";
-import { encodeString } from "../../netString";
+import { Socket } from "net"
+import { encodeVarInt } from "../../VarInt"
+import { error } from "../../../logApi"
+import { encodeString } from "../../netString"
+import { encodePacket } from "../../packet"
 
 export const sendLoginFinished = (socket: Socket) => {
-    const uuid = Buffer.from("8667ba71b85a4004af54457a9734eed7", "hex");
-    const username = "Steve";
-    const usernameBuffer = encodeString(username);
+    const uuid = Buffer.from("8667ba71b85a4004af54457a9734eed7", "hex")
+    const username = "Steve"
 
-    const propertiesCount = encodeVarInt(0); // Empty properties array
-    const strictErrorHandling = Buffer.from([0]); // Set to false (0)
+    const propertiesCount = 0
+    const strictErrorHandling = 0
 
-    const packetId = Buffer.from([0x02]);
-    const combinedBuffer = Buffer.concat([
+    
+    const packetData = [
         uuid,
-        usernameBuffer,
+        username,
         propertiesCount,
         strictErrorHandling,
-    ]);
+    ]
 
-    const packetLength = encodeVarInt(combinedBuffer.length);
-    const fullDataBuffer = Buffer.concat([packetLength, packetId, combinedBuffer]);
-
-    socket.write(fullDataBuffer, (err) => {
+    const packet = encodePacket(0x02, packetData)
+    socket.write(packet, (err) => {
         if (err) {
-            error(`Failed to send Login Success: ${err}`, "SERVER");
+            error(`Failed to send Login Success: ${err}`, "SERVER")
         }
-    });
-};
+    })
+}

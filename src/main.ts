@@ -2,6 +2,10 @@ import { createServer, Socket } from "net"
 import { log, error } from "./logApi"
 import { handlePacket, ConnectionState } from "./network/handle_packet"
 import { PORT } from "./config"
+import { readPacketLength } from "./network/packet"
+import { encodeVarInt } from "./network/VarInt"
+
+require("./network/packet")
 
 let nextSocketId = 0
 const reusableIds: number[] = []
@@ -9,6 +13,8 @@ global.sockets = {}
 
 const server = createServer((socket: Socket) => {
   let socketId: number
+
+  socket.setNoDelay()
 
   if (reusableIds.length > 0) {
     socketId = reusableIds.pop()!
@@ -20,13 +26,27 @@ const server = createServer((socket: Socket) => {
 
   socket.on("data", (clientData: Buffer) => {
     global.currentSocketId = socketId
-    handlePacket(clientData, socket)
+
+    const splitBuffer = (buffer: Buffer) => {
+      const length = readPacketLength(buffer).packetLength
+      let returnBuffer: Buffer = encodeVarInt(length)
+
+      returnBuffer = buffer.subarray(0, length + 1)
+      
+      handlePacket(returnBuffer, socket)
+
+      if (length + 1 !== buffer.length) {
+        splitBuffer(buffer.subarray(length + 1, buffer.length))
+      }
+    }
+
+    splitBuffer(clientData)
+
   })
 
   socket.on("end", () => {
     delete global.sockets[socketId]
     reusableIds.push(socketId)
-    //log("connection closed", "SERVER")
   })
 
   socket.on("error", (err) => {

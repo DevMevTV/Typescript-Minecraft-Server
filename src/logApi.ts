@@ -1,7 +1,8 @@
-import { writeFileSync, readFileSync, readdirSync, rename, mkdir } from "fs"
+import { writeFileSync, readFileSync, mkdir } from "fs"
 
 const date = new Date()
 let logFileName: string = `./logs/log_${date.getUTCFullYear()}_${date.getUTCMonth() + 1}_${date.getUTCDate()}`
+mkdir("./logs", () => {})
 try {readFileSync(logFileName)}
 catch {writeFileSync(logFileName, '')}  
 

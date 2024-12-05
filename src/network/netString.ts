@@ -7,8 +7,8 @@ export const encodeString = (value: string): Buffer => {
 }
 
 export const decodeString = (buffer: Buffer, offset: number): { value: string; offset: number } => {
-    const { value: length, size } = decodeVarInt(buffer.slice(offset))
+    const { value: length, size } = decodeVarInt(buffer.subarray(offset))
     const stringStart = offset + size
-    const stringBuffer = buffer.slice(stringStart, stringStart + length)
+    const stringBuffer = buffer.subarray(stringStart, stringStart + length)
     return { value: stringBuffer.toString('utf8'), offset: stringStart + length }
 }

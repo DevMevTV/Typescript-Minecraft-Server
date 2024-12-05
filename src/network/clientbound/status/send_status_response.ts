@@ -1,7 +1,7 @@
-import { encodeVarInt } from "../../VarInt"
 import { error } from "../../../logApi"
 import { VERSION, PROTOCOL_VERSION, MAX_PLAYERS, MOTD } from "../../../config"
 import { Socket } from "net"
+import { encodePacket } from "../../packet"
 
 export const sendStatusResponse = (socket: Socket) => {
     const statusResponse = {
@@ -23,17 +23,8 @@ export const sendStatusResponse = (socket: Socket) => {
       enforcesSecureChat: false,
     }
 
-    const jsonString = JSON.stringify(statusResponse)
-    const jsonBuffer = Buffer.from(jsonString, "utf-8")
-
-    const packetIdBuffer = Buffer.from([0x00])
-    const jsonLengthBuffer = encodeVarInt(jsonBuffer.length)
-    const fullDataBuffer = Buffer.concat([packetIdBuffer, jsonLengthBuffer, jsonBuffer])
-
-    const lengthBuffer = encodeVarInt(fullDataBuffer.length)
-    const responseBuffer = Buffer.concat([lengthBuffer, fullDataBuffer])
-
-    socket.write(responseBuffer, (err) => {
+    const packet = encodePacket(0x00, [statusResponse], true)
+    socket.write(packet, (err) => {
       if (err) {
         error(`Failed to send status response: ${err}`, "SERVER")
       }

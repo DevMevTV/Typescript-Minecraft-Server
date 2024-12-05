@@ -17,20 +17,10 @@ export const handlePacket = (packet: Buffer, socket: Socket) => {
     const socketId = global.currentSocketId
     let nextState: ConnectionState = global.sockets[socketId].NextState
 
-    if (packet[0] == 0x10) {
-        handleHandshake(socket, packet)
-        return
-    }
-
-    if (nextState == ConnectionState.Status) {
-        handleStatus(socket, packet)
-    }
-
-    if (nextState == ConnectionState.Login) {
-        handleLogin(socket, packet)
-    }
-
-    if (nextState == ConnectionState.Configuration) {
-        handleConfiguration(socket, packet)
+    switch(nextState) {
+        case ConnectionState.Handshake: {handleHandshake(socket, packet); break}
+        case ConnectionState.Status: {handleStatus(socket, packet); break}
+        case ConnectionState.Login: {handleLogin(socket, packet); break}
+        case ConnectionState.Configuration: {handleConfiguration(socket, packet); break}
     }
 }

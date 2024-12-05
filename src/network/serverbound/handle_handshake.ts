@@ -1,9 +1,7 @@
-import { Socket } from "net";
-import { ConnectionState } from "../handle_packet";
-import { decodeString } from "../netString";
-import { decodeVarInt } from "../VarInt";
-import { handleLoginStart } from "./login/handle_login_start";
-import { handleStatusRequest } from "./status/handle_status_request";
+import { Socket } from "net"
+import { ConnectionState } from "../handle_packet"
+import { decodeString } from "../netString"
+import { decodeVarInt } from "../VarInt"
 
 export const handleHandshake = (socket: Socket, packet: Buffer) => {
     const socketId = global.currentSocketId
@@ -18,14 +16,4 @@ export const handleHandshake = (socket: Socket, packet: Buffer) => {
 
     global.sockets[socketId].Data = {Protocol_Version: Protocol_Version, Server_Adress: Server_Adress, Server_Port: Server_Port}
     global.sockets[socketId].NextState = Next_State as ConnectionState
-
-
-    if (Next_State == 1) {
-        handleStatusRequest(socket)
-    } else if (Next_State == 2) {
-        const offset = Server_Adress_Data.offset + 3
-        if (packet[offset] == 0x1a) {
-            handleLoginStart(packet.slice(offset, packet.length-1), socket)
-        }
-    }
 }
