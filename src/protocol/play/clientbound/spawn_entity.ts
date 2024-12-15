@@ -1,5 +1,5 @@
-import { Angle, Double, Short, UUID, VarInt } from "../../datatypes";
-import { ConnectionStates, Player, Players } from "../../player";
+import { Angle, Double, Short, UUID, VarInt } from "../../../datatypes";
+import { ConnectionStates, Player, Players } from "../../../player";
 
 export class SpawnEntity {
     public static send(player: Player, entity: number, EID: number, localy = false) {

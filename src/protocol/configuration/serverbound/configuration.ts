@@ -1,12 +1,12 @@
 import { KnownPacks } from "../clientbound/known_packs";
 import { RegistryData } from "../clientbound/registry_data";
 import { ConnectionStates, Player, Players } from "../../../player";
-import { Login } from "../../../clientbound/play/login";
-import { GameEvent, GameEvents } from "../../../clientbound/play/game_event";
-import { SystemChatMessage } from "../../../clientbound/play/system_chat_message";
+import { Login } from "../../play/clientbound/login";
+import { GameEvent, GameEvents } from "../../play/clientbound/game_event";
+import { SystemChatMessage } from "../../play/clientbound/system_chat_message";
 import { log } from "../../../logApi";
-import { SpawnEntity } from "../../../clientbound/play/spawn_entity";
-import { ChunkDataAndUpdateLight } from "../../../clientbound/play/chunk_data_and_update_light";
+import { SpawnEntity } from "../../play/clientbound/spawn_entity";
+import { ChunkDataAndUpdateLight } from "../../play/clientbound/chunk_data_and_update_light";
 
 export class Configuration {
   public static handle(player: Player, buffer: Buffer) {

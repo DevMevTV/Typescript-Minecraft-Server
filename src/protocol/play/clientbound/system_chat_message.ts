@@ -1,5 +1,5 @@
-import { TextComponent, VarInt } from "../../datatypes";
-import { ConnectionStates, Players } from "../../player";
+import { TextComponent, VarInt } from "../../../datatypes";
+import { ConnectionStates, Players } from "../../../player";
 
 export class SystemChatMessage {
     public static send(message: string) {

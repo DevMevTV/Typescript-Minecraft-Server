@@ -1,6 +1,6 @@
-import { Int, Long, NetString, VarInt } from "../../datatypes";
-import { server } from "../../serverPropeties";
-import { Player, Players } from "../../player";
+import { Int, Long, NetString, VarInt } from "../../../datatypes";
+import { server } from "../../../serverPropeties";
+import { Player, Players } from "../../../player";
 
 export class Login {
     public static send(player: Player) {

@@ -1,5 +1,5 @@
-import { Double, Float, VarInt } from "../../datatypes";
-import { Player } from "../../player";
+import { Double, Float, VarInt } from "../../../datatypes";
+import { Player } from "../../../player";
 
 export class PlayerPosition {
     public static send(player: Player) {

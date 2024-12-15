@@ -1,5 +1,5 @@
-import { Int, Short, VarInt } from "../../datatypes";
-import { Player } from "../../player";
+import { Int, Short, VarInt } from "../../../datatypes";
+import { Player } from "../../../player";
 
 export class ChunkDataAndUpdateLight {
     public static send(player: Player) {

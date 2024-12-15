@@ -7,8 +7,8 @@ import { Status } from "./protocol/status/serverbound/status";
 import { Login } from "./protocol/login/serverbound/login";
 import { log } from "./logApi";
 import { Configuration } from "./protocol/configuration/serverbound/configuration";
-import { Play } from "./serverbound/play/play";
-import { SystemChatMessage } from "./clientbound/play/system_chat_message";
+import { Play } from "./protocol/play/serverbound/play";
+import { SystemChatMessage } from "./protocol/play/clientbound/system_chat_message";
 
 new serverPropeties.server("../config.json");
 

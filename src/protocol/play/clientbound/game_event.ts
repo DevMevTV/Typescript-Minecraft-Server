@@ -1,5 +1,5 @@
-import { Float, VarInt } from "../../datatypes";
-import { Player } from "../../player";
+import { Float, VarInt } from "../../../datatypes";
+import { Player } from "../../../player";
 
 export enum GameEvents {
     NoRespawnBlockAvailable = 0,

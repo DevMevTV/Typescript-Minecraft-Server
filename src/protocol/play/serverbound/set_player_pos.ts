@@ -1,5 +1,5 @@
-import { Double, Float } from "../../datatypes";
-import { Player } from "../../player";
+import { Double, Float } from "../../../datatypes";
+import { Player } from "../../../player";
 
 export class SetPlayerPos {
     public static set_player_position(player: Player, buffer: Buffer) {

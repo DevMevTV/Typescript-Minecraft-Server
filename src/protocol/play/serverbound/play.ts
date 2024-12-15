@@ -1,7 +1,7 @@
-import { NetString } from "../../datatypes";
-import { SystemChatMessage } from "../../clientbound/play/system_chat_message";
-import { Player } from "../../player";
-import { log } from "../../logApi";
+import { NetString } from "../../../datatypes";
+import { SystemChatMessage } from "../clientbound/system_chat_message";
+import { Player } from "../../../player";
+import { log } from "../../../logApi";
 import { SetPlayerPos } from "./set_player_pos";
 
 export class Play {
