@@ -2,14 +2,14 @@ import { Int, Short, VarInt } from "../../../datatypes";
 import { Player } from "../../../player";
 
 export class ChunkDataAndUpdateLight {
-    public static send(player: Player) {
+    public static send(player: Player, chunkX: number, chunkY: number) {
 
         let chunk_sections = Buffer.alloc(0)
         for (let i = 1; i <= 24; i++) {
             chunk_sections = Buffer.concat([chunk_sections,
-                Short.encode(0),
+                Short.encode(4096),
                 Buffer.from([0x00]),
-                VarInt.encode(0),
+                i < 9 ? (i % 2 == 0 ? VarInt.encode(11649) : VarInt.encode(4328)) : VarInt.encode(0),
                 VarInt.encode(0),
                 Buffer.from([0x00]),
                 VarInt.encode(0),
@@ -18,8 +18,8 @@ export class ChunkDataAndUpdateLight {
         }
 
         const response_data = Buffer.concat([
-            Int.encode(0),                      // Chunk X
-            Int.encode(0),                      // Chunk Y
+            Int.encode(chunkX),                 // Chunk X
+            Int.encode(chunkY),                 // Chunk Y
             Buffer.from([0x0a, 0x00]),          // Heightmaps
             VarInt.encode(chunk_sections.length),
             chunk_sections,

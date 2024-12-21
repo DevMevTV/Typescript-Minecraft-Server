@@ -6,9 +6,9 @@ export class PlayerPosition {
         const response_data = Buffer.concat([
             VarInt.encode(0),
 
-            Double.encode(0),
-            Double.encode(0),
-            Double.encode(0),
+            Double.encode(player.player_entity.position.x),
+            Double.encode(player.player_entity.position.y),
+            Double.encode(player.player_entity.position.z),
 
             Double.encode(0),
             Double.encode(0),
@@ -17,7 +17,7 @@ export class PlayerPosition {
             Float.encode(0),
             Float.encode(0),
 
-            Buffer.from([0x0001])
+            Buffer.alloc(4)
         ])
 
         const response = Buffer.concat([

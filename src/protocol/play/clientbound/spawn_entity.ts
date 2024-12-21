@@ -1,22 +1,34 @@
-import { Angle, Double, Short, UUID, VarInt } from "../../../datatypes";
-import { ConnectionStates, Player, Players } from "../../../player";
+import { Angle, Double, Short, VarInt } from "../../../datatypes";
+import { UUID } from "../../../datatypes/uuid";
+import { Vector2, Vector3 } from "../../../math/vectors";
+import { Player } from "../../../player";
 
 export class SpawnEntity {
-    public static send(player: Player, entity: number, EID: number, localy = false) {
+    public static send(
+        player: Player, 
+        eid: number, 
+        uuid: UUID, 
+        entityType: number, 
+        position: Vector3, 
+        rotation: Vector2,
+        headYaw: number,
+        data: number,
+        velocity: Vector3
+    ) {
         const response_data = Buffer.concat([
-            VarInt.encode(EID),                                     // Entity ID
-            UUID.encode("00112233445566778899aabbccddeeff"),        // Entity UUID
-            VarInt.encode(entity),                                  // Entity Type
-            Double.encode(0),                                       // X
-            Double.encode(0),                                       // Y
-            Double.encode(0),                                       // Z
-            Angle.encode(0),                                        // Pitch
-            Angle.encode(0),                                        // Yaw
-            Angle.encode(0),                                        // Head Yaw
-            VarInt.encode(0),                                       // Data
-            Short.encode(0),                                        // Velocity X
-            Short.encode(0),                                        // Velocity Y
-            Short.encode(0),                                        // Velocity Z
+            VarInt.encode(eid),                                     // Entity ID
+            uuid.toBuffer(),                                        // Entity UUID
+            VarInt.encode(entityType),                              // Entity Type
+            Double.encode(position.x),                              // X
+            Double.encode(position.y),                              // Y
+            Double.encode(position.z),                              // Z
+            Angle.encode(rotation.x),                               // Pitch
+            Angle.encode(rotation.y),                               // Yaw
+            Angle.encode(headYaw),                                  // Head Yaw
+            VarInt.encode(data),                                    // Data
+            Short.encode(velocity.x),                               // Velocity X
+            Short.encode(velocity.y),                               // Velocity Y
+            Short.encode(velocity.z),                               // Velocity Z
         ])
 
         const response = Buffer.concat([
@@ -25,15 +37,6 @@ export class SpawnEntity {
             response_data
         ])
 
-        if (localy) {
-            
-        } else {
-            Players.ConnectedPlayers.forEach((splayer) => {
-                if (splayer.NextState != ConnectionStates.Play) return
-                if (splayer == player) return
-                splayer.client().write(response)
-            })
-        }
-        
+        player.client().write(response)
     }
 }

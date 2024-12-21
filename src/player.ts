@@ -1,5 +1,8 @@
 import { Socket } from "net";
 import { Int, VarInt } from "./datatypes";
+import { UUID } from "./datatypes/uuid";
+import { PlayerEntity } from "./entity/living_entities/player";
+import { Vector2, Vector3 } from "./math/vectors";
 
 export class Players {
   public static ConnectedPlayers: Map< Socket, Player > = new Map();
@@ -12,15 +15,12 @@ export class Player {
 
   public NextState: ConnectionStates
 
-  public username: string
-  public uuid: string
-  public position: {x: number, y: number, z: number}
-
   // Protocol stuff
   public server_adress: string
   public server_port: number
   public protocol_version: number
-  public EID: number
+
+  public player_entity: PlayerEntity
 
   private pingProcess: NodeJS.Timeout;
 
@@ -60,9 +60,13 @@ export class Player {
     this.server_port = server_port
   }
 
-  public login(username: string, uuid: string) {
-    this.username = username
-    this.uuid = uuid
+  public login(username: string, uuid: UUID) {
+    this.player_entity = new PlayerEntity(username,
+      new Vector3(8.5, 330, 8.5),
+      new Vector2(0, 0),
+      0,
+      new Vector3(0, 0, 0)
+    ).setUUID(uuid)
   }
 
   public client(): Socket { return this.socket }

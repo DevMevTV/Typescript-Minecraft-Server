@@ -1,7 +1,7 @@
 import { writeFileSync, readFileSync, mkdir } from "fs"
 
 const date = new Date();
-let logFileName: string = `./logs/log_${date.getUTCFullYear()}_${date.getUTCMonth() + 1}_${date.getUTCDate()}`;
+let logFileName: string = `./logs/log_${date.getUTCFullYear()}_${date.getUTCMonth() + 1}_${date.getUTCDate()}.txt`;
 mkdir("./logs", () => {});
 try {readFileSync(logFileName);}
 catch {writeFileSync(logFileName, '');}
@@ -22,8 +22,8 @@ export function error(
 ) {
   writeFileSync(
     logFileName,
-    `${readFileSync(logFileName)}[ERROR]: {${extraInformation}} - ${value}\n`
+    `${readFileSync(logFileName)}[Error] {${extraInformation}} - ${value}\n`
   );
-  if (!fatal) console.error(`\x1b[31m[ERROR]: {${extraInformation}} - \x1b[37m${value}`);
-  else throw new Error(`[ERROR]: {${extraInformation}} - ${value}`);
+  if (!fatal) console.error(`\x1b[31m[ERROR] {${extraInformation}} - \x1b[37m${value}`);
+  else throw new Error(`[ERROR] {${extraInformation}} - ${value}`);
 }

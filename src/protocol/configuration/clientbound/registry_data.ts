@@ -132,5 +132,7 @@ export class RegistryData {
 
             client.write(response)
         }
+
+        player.client().write(Buffer.from([0x01, 0x03]))
     }
 }

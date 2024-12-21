@@ -4,8 +4,6 @@ import { Player, Players } from "../../../player";
 
 export class Login {
     public static send(player: Player) {
-        Players.EID += 1
-        player.EID = Players.EID
         const response_data = Buffer.concat([
             Int.encode(Players.EID),                              // Entity ID
             Buffer.from([0x00]),                        // Is hardcore

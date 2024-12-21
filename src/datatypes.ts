@@ -1,4 +1,5 @@
 import { encode, decode, Tag } from 'nbt-ts'
+import { Vector3 } from './math/vectors'
 
 export class VarInt {
     public static encode(value: number) {
@@ -83,37 +84,20 @@ export class Short {
         }
     
         const buffer = Buffer.alloc(2)
-        buffer.writeUInt16LE(value)
+        buffer.writeInt16BE(value)
         return buffer
     }
 
     public static decode(buffer: Buffer, offset: number = 0) {
         if (offset + 2 > buffer.length) {
-            throw new RangeError("Unsigned Short exceeds buffer length")
+            throw new RangeError("Short exceeds buffer length")
         }
     
-        const value = buffer.readUInt16BE(offset)
+        const value = buffer.readInt16BE(offset)
         return { value, size: 2, offset: offset + 2 }
     }
 }
 
-
-export class UUID {
-    public static encode(value: string) {
-        const buffer = Buffer.from(value.match(/../g)!.map(byte => parseInt(byte, 16)))
-
-        return buffer
-    }
-
-    public static decode(buffer: Buffer, offset: number = 0) {
-        const value = buffer.subarray(offset, offset + 16).toString("hex")
-        return { value, offset: offset + 16 }
-    } 
-
-    public static untrim(uuid: string) {
-        return uuid.substring(0, 8) + "-" + uuid.substring(8, 12) + "-" + uuid.substring(12, 16) + "-" + uuid.substring(16, 20) + "-" + uuid.substring(20)
-    }
-}
 
 
 export class Int {
@@ -226,16 +210,64 @@ export class Double {
 
 export class Angle {
     public static encode(angle: number) {
-        const encoded = Math.round(angle * (256 / 360))
+        
+        while (angle > 180) {
+            angle -= 360
+        }
+        while (angle < -180) {
+            angle += 360
+        }
+
         const buffer = Buffer.alloc(1)
-        buffer.writeUInt8(encoded)
+        buffer.writeInt8((angle * 256) / 360)
         return buffer
     }
 
     public static decode(buffer: Buffer, offset: number = 0) {
-        const encoded = buffer.readUInt8(offset)
-
-        const value = encoded * (360 / 256)
+        const encoded = buffer.readInt8(offset)
+        
+        const value = (encoded * (360 / 256)) - 180
         return { value, offset: offset + 1 }
+    }
+}
+
+
+export class Position {
+    public static encode(position: Vector3): Buffer {
+        const buffer = Buffer.alloc(8);
+
+        const x = position.x & 0x3FFFFFF;
+        const y = position.y & 0xFFF;
+        const z = position.z & 0x3FFFFFF;
+
+        const value = (BigInt(x) << BigInt(38)) | (BigInt(z) << BigInt(12)) | BigInt(y);
+
+        const high = Number(value >> BigInt(32));
+        const low = Number(value & BigInt(0xFFFFFFFF));
+
+        buffer.writeUInt32BE(high, 0);
+        buffer.writeUInt32BE(low, 4);
+
+        return buffer;
+    }
+
+    public static decode(buffer: Buffer, offset: number = 0) {
+        const high = buffer.readUInt32BE(offset);
+        const low = buffer.readUInt32BE(offset + 4);
+
+        const value = (BigInt(high) << BigInt(32)) | BigInt(low);
+
+        let x = Number((value >> BigInt(38)) & BigInt(0x3FFFFFF));
+        let y = Number(value & BigInt(0xFFF));
+        let z = Number((value >> BigInt(12)) & BigInt(0x3FFFFFF));
+
+        if (x >= 1 << 25) x -= 1 << 26;
+        if (y >= 1 << 11) y -= 1 << 12;
+        if (z >= 1 << 25) z -= 1 << 26;
+
+        return {
+            value: new Vector3(x, y, z),
+            offset: offset + 8,
+        };
     }
 }
