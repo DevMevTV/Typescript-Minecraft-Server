@@ -21,6 +21,8 @@ import { PlayerAction } from "./protocol/play/serverbound/player_action";
 import { UseItemOn } from "./protocol/play/serverbound/use_item_on";
 import { PluginMessage } from "./protocol/configuration/clientbound/plugin_message";
 import { PongResponse } from "./protocol/play/clientbound/pong_response";
+import { ChatCommand } from "./protocol/play/serverbound/chat_command";
+import { Summon } from "./commands/summon";
 const readline = require("readline")
 
 new serverPropeties.server("../config.json");
@@ -113,3 +115,8 @@ Protocol.PLAY("minecraft:set_creative_mode_slot", () => {})
 Protocol.PLAY("minecraft:player_action", PlayerAction.handle)
 Protocol.PLAY("minecraft:use_item_on", UseItemOn.handle)
 Protocol.PLAY("minecraft:ping_request", PongResponse.send)
+Protocol.PLAY("minecraft:chat_command", ChatCommand.handle)
+
+// Command stuff
+Summon.init()
+ChatCommand.register("summon", new Summon)

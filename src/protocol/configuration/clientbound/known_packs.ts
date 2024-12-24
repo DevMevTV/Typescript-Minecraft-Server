@@ -1,5 +1,6 @@
 import { NetString, VarInt } from "../../../datatypes";
 import { Player } from "../../../player";
+import { Protocol } from "../../reports";
 
 export class KnownPacks {
     public static send(player: Player) {
@@ -19,13 +20,6 @@ export class KnownPacks {
                 NetString.encode(pack.version)])
         })
 
-        let response = VarInt.encode(response_data.length)
-        response = Buffer.concat([
-            VarInt.encode(response_data.length + 1),
-            Buffer.from([0x0e]),
-            response_data
-        ])
-
-        player.client().write(response)
+        Protocol.send(player, "minecraft:select_known_packs", response_data)
     }
 }

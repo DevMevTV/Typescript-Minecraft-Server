@@ -1,8 +1,8 @@
 import { TextComponent, VarInt } from "../../../datatypes";
-import { ConnectionStates, Players } from "../../../player";
+import { ConnectionStates, Player, Players } from "../../../player";
 
 export class SystemChatMessage {
-    public static send(message: string) {
+    public static send(message: string, player?: Player) {
 
         const responseData = Buffer.concat([
             TextComponent.encode(message),
@@ -15,9 +15,13 @@ export class SystemChatMessage {
             responseData,
         ])
 
-        Players.ConnectedPlayers.forEach((player, key) => {
-            if (player.NextState !== ConnectionStates.Play) return
-            key.write(response)
-        })
+        if (player) {
+            player.client().write(response)
+        } else {
+            Players.ConnectedPlayers.forEach((player, key) => {
+                if (player.NextState !== ConnectionStates.Play) return
+                key.write(response)
+            })
+        }
     }
 }

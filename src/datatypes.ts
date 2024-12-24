@@ -125,6 +125,7 @@ export class Int {
 export class Long {
     public static encode(value: bigint) {
         if (value < BigInt("-9223372036854775808") || value > BigInt("9223372036854775807")) {
+            console.log("A")
             throw new RangeError("Value must be between -9223372036854775808 and 9223372036854775807")
         }
 

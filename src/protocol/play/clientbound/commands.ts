@@ -8,7 +8,7 @@ export class Commands {
 
         nodes.push(
             Buffer.concat([
-                Buffer.from([0x03 & 0x00]),
+                Buffer.from([0x00]),
                 VarInt.encode(1),
                 VarInt.encode(1),
             ])
@@ -16,7 +16,7 @@ export class Commands {
 
         nodes.push(
             Buffer.concat([
-                Buffer.from([0x03 & 0x01]),
+                Buffer.from([0x01]),
                 VarInt.encode(1),
                 VarInt.encode(2),
                 NetString.encode("summon"),
@@ -25,10 +25,12 @@ export class Commands {
 
         nodes.push(
             Buffer.concat([
-                Buffer.from([0x03 & 0x02]),
+                Buffer.from([0x02]),
                 VarInt.encode(0),
                 NetString.encode("entity"),
-                VarInt.encode(6)
+                VarInt.encode(45),
+                NetString.encode("minecraft:entity_type")
+                //Buffer.from([0x01])
             ])
         )
 
@@ -38,6 +40,6 @@ export class Commands {
             VarInt.encode(0)
         ])
 
-        //Protocol.send(player, "minecraft:commands", response_data)
+        Protocol.send(player, "minecraft:commands", response_data)
     }
 }

@@ -1,13 +1,11 @@
 import { Entity } from "../../../entity/entity";
 import { log } from "../../../logApi";
-import { Vector2, Vector3 } from "../../../math/vectors";
 import { ConnectionStates, Player, Players } from "../../../player";
 import { ChunkDataAndUpdateLight } from "../../play/clientbound/chunk_data_and_update_light";
 import { Commands } from "../../play/clientbound/commands";
 import { GameEvent, GameEvents } from "../../play/clientbound/game_event";
 import { Login } from "../../play/clientbound/login";
 import { PlayerPosition } from "../../play/clientbound/player_position";
-import { SpawnEntity } from "../../play/clientbound/spawn_entity";
 import { SystemChatMessage } from "../../play/clientbound/system_chat_message";
 
 export class ConfigurationAcknowledged {
@@ -21,8 +19,8 @@ export class ConfigurationAcknowledged {
           `${player.player_entity.getName()} joined the game with uuid ${player.player_entity.getUUID()}`,
           "SERVER"
         );
-        for (var x = -2; x <= 2; x++) {
-            for (var y = -2; y <= 2; y++) {
+        for (var x = -5; x <= 5; x++) {
+            for (var y = -5; y <= 5; y++) {
                 ChunkDataAndUpdateLight.send(player, x, y)
             }
         }

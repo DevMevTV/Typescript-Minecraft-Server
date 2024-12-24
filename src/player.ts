@@ -3,6 +3,7 @@ import { Int, VarInt } from "./datatypes";
 import { UUID } from "./datatypes/uuid";
 import { PlayerEntity } from "./entity/living_entities/player";
 import { Vector2, Vector3 } from "./math/vectors";
+import { SystemChatMessage } from "./protocol/play/clientbound/system_chat_message";
 
 export class Players {
   public static ConnectedPlayers: Map< Socket, Player > = new Map();
@@ -54,6 +55,7 @@ export class Player {
     server_adress: string,
     server_port: number
   ) {
+    if (this.server_port) return
     this.NextState = next_state
     this.protocol_version = protocol_version
     this.server_adress = server_adress
@@ -61,12 +63,17 @@ export class Player {
   }
 
   public login(username: string, uuid: UUID) {
+    if (this.player_entity) return
     this.player_entity = new PlayerEntity(username,
       new Vector3(8.5, 330, 8.5),
       new Vector2(0, 0),
       0,
       new Vector3(0, 0, 0)
     ).setUUID(uuid)
+  }
+
+  public sendMessage(message: string) {
+    SystemChatMessage.send(message, this)
   }
 
   public client(): Socket { return this.socket }
